@@ -41,7 +41,7 @@ Resources:
                   Repo: "aws_cloudformation"
                   Branch: "master"
                   PollForSourceChanges: "false"
-                  OAuthToken: "62ba3f2766abe98a0679ae99c9e23e1aa65a0773"
+                  OAuthToken: "0f86c0ff7827663bd63b61f9105af9bc4d6c0fbf"
                 OutputArtifacts:
                   - Name: "SourceArtifact"
           - Name: "BUILD"
