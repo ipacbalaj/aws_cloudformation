@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: "Create codebuild stack"
+
+Parameters:
+  StackName:
+    Type: String
+    Description: "The name of the stack."
+    Default: "ionutfirststack"
+
+Resources:
+  ArtifactsBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub "${StackName}-api-artifacts"
+      Tags:
+        - Key: "Application-Role"
+          Value: "CodePipeline Artifacts Bucket"
+
+  CodePipeline:
+     Type: "AWS::CodePipeline::Pipeline"
+     Properties:
+        Name: !Sub "${StackName}-prod-codepipeline"
+        ArtifactStore:
+          Location: !Ref ArtifactsBucket
+          Type: "S3"
+        RestartExecutionOnUpdate: "true"
+        RoleArn: arn:aws:iam::340732058472:role/service-role/codepipeline
+        Stages:
+          - Name: "Source"
+            Actions:
+              - Name: "Build-API"
+                RunOrder: 1
+                ActionTypeId:
+                  Category: "Source"
+                  Owner: "ThirdParty"
+                  Provider: "GitHub"
+                  Version: 1
+                Configuration:
+                  Owner: "ipacbalaj"
+                  Repo: "aws_cloudformation"
+                  Branch: "master"
+                  PollForSourceChanges: "false"
+                  OAuthToken: "62ba3f2766abe98a0679ae99c9e23e1aa65a0773"
+                OutputArtifacts:
+                  - Name: "SourceArtifact"
+          - Name: "BUILD"
+            Actions:
+                - Name: "Build-QA"
+                  Region: "us-east-2"
+                  RunOrder: 1
+                  InputArtifacts:
+                    - Name: "SourceArtifact"
+                  ActionTypeId:
+                    Category: "Build"
+                    Owner: "AWS"
+                    Provider: "CodeBuild"
+                    Version: 1
+                  Configuration:
+                    ProjectName: "ionut project"
+                  OutputArtifacts:
+                    - Name: "BuildArtifact-QA"
+
+  BuildAPIProject:
+    Type: AWS::CodeBuild::Project
+    Properties: 
+        Name: !Sub BuildAPIProject-${AWS::StackName}
+        Description: Build api
+        ServiceRole: arn:aws:iam::340732058472:role/codebuildrole
+        Environment: 
+            Type: LINUX_CONTAINER
+            ComputeType: BUILD_GENERAL1_SMALL
+            Image: aws/codebuild/standard:4.0
+        Source:
+            Type: "CODEPIPELINE"
+            BuildSpec: "buildspec.json"
+
+        Artifacts:
+            Type: "CODEPIPELINE"
+        TimeoutInMinutes: 20
+        Tags:
+            - Key: Name
+              Value: !Sub BuildAPIProject-${AWS::StackName}

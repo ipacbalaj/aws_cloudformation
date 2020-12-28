@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: "Create codebuild stack"
+
+Parameters:
+  ApplicationRepoName:
+    Type: String
+    Description: Name of the github repository
+    Default: aws_cloudformation
+
+BuildAPIProject:
+    Type: AWS::CodeBuild::Project
+    Properties: 
+        Name: !Sub BuildAPIProject-${AWS::StackName}
+        Description: Build api
+        ServiceRole: arn:aws:iam::340732058472:role/codebuildrole
+        Environment: 
+            Type: LINUX_CONTAINER
+            ComputeType: BUILD_GENERAL1_SMALL
+            Image: aws/codebuild/standard:4.0
+        Source:
+            Type: "CODEPIPELINE"
+            BuildSpec: "buildspec.json"
+        TimeoutInMinutes: 20
+        Tags:
+            - Key: Name
+              Value: !Sub BuildAPIProject-${AWS::StackName}
+
