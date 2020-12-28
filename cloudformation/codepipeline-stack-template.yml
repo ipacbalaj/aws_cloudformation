@@ -57,7 +57,7 @@ Resources:
                     Provider: "CodeBuild"
                     Version: 1
                   Configuration:
-                    ProjectName: "ionut_project"
+                    ProjectName: !Sub BuildAPIProject-${AWS::StackName}
                   OutputArtifacts:
                     - Name: "BuildArtifact-QA"
 
