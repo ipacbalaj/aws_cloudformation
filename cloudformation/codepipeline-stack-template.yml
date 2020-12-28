@@ -73,7 +73,7 @@ Resources:
             Image: aws/codebuild/standard:4.0
         Source:
             Type: "CODEPIPELINE"
-            BuildSpec: "buildspec.json"
+            BuildSpec: "buildspec.yml"
 
         Artifacts:
             Type: "CODEPIPELINE"
